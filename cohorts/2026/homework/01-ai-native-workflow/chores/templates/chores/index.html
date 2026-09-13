@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Household Chores</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; background: #f4f6f8; }
+      .container { max-width: 900px; margin: auto; }
+      .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 0.75rem; border-bottom: 1px solid #e7e7e7; text-align: left; }
+      .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.8rem; }
+      .done { background: #d9f7e8; color: #186a3b; }
+      .overdue { background: #fde2e2; color: #a93226; }
+      .pending { background: #fff4d6; color: #7d5a00; }
+      a.button { display: inline-block; text-decoration: none; background: #1f6feb; color: white; padding: 0.6rem 1rem; border-radius: 8px; }
+      form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+      input, textarea { padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; }
+      textarea { min-height: 70px; width: 100%; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Household Chores</h1>
+      <p><a class="button" href="{% url 'chores:create' %}">Add chore</a></p>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Assignee</th>
+              <th>Due</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for chore in chores %}
+              <tr>
+                <td>
+                  <strong>{{ chore.title }}</strong><br />
+                  <small>{{ chore.description|default:"No description" }}</small>
+                </td>
+                <td>{{ chore.assignee }}</td>
+                <td>{{ chore.due_date }}</td>
+                <td>
+                  {% if chore.completed %}
+                    <span class="badge done">Done</span>
+                  {% elif chore.is_overdue %}
+                    <span class="badge overdue">Overdue</span>
+                  {% else %}
+                    <span class="badge pending">Pending</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <form method="post" action="{% url 'chores:toggle' chore.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">
+                      {% if chore.completed %}Mark unfinished{% else %}Mark done{% endif %}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5">No chores yet. Add the first one!</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
